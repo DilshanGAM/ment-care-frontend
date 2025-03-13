@@ -62,7 +62,9 @@ export default function RootLayout({
             Patients
           </Link>
 				</div>
+				<div className="w-[calc(100vw-300px)] h-screen">
 				{children}
+				</div>
 			</body>
 		</html>
 	);
