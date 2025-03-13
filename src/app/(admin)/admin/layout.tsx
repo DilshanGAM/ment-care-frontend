@@ -3,7 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../../globals.css";
 import Image from "next/image";
 import Link from "next/link";
-import { FileUser, LayoutDashboard, UserRound } from "lucide-react";
+import {
+	FileUser,
+	LayoutDashboard,
+	Stethoscope,
+	UserRound,
+} from "lucide-react";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -53,18 +58,24 @@ export default function RootLayout({
 						<UserRound className="mr-2" />
 						Users
 					</Link>
-          {/* patients */}
-          <Link
-            href="/admin/patients"
-            className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"
-          >
-            <FileUser className="mr-2" />
-            Patients
-          </Link>
+					{/* doctors */}
+					<Link
+						href="/admin/doctors"
+						className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"
+					>
+						<Stethoscope className="mr-2" />
+						Doctors
+					</Link>
+					{/* patients */}
+					<Link
+						href="/admin/patients"
+						className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"
+					>
+						<FileUser className="mr-2" />
+						Patients
+					</Link>
 				</div>
-				<div className="w-[calc(100vw-300px)] h-screen">
-				{children}
-				</div>
+				<div className="w-[calc(100vw-300px)] h-screen">{children}</div>
 			</body>
 		</html>
 	);
