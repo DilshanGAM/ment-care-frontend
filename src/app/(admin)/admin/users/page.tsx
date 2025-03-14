@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
 	);
 }
 
-export function AllUsersTab({ type }: { type: string }) {
+function AllUsersTab({ type }: { type: string }) {
 	const [users, setUsers] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const router = useRouter();
