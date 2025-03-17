@@ -117,7 +117,11 @@ function AllUsersTab({ type }: { type: string }) {
 								<TableCell>{user.first_name}</TableCell>
 								<TableCell>{user.last_name}</TableCell>
 								<TableCell>{user.email}</TableCell>
-								<TableCell>{user.diseases}</TableCell>
+								<TableCell>{
+									user.diseases.map((disease: any , index : Number) => (
+										<span key={disease}>{disease}{index!=(user.diseases.length-1)&&","} </span>
+									))
+									}</TableCell>
 								<TableCell>{user.phone}</TableCell>
 								<TableCell>{user.type}</TableCell>
 							</TableRow>

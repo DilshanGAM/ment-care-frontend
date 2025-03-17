@@ -21,6 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { UserRoundPlus } from "lucide-react";
 
 export default function UserAddDialog({refresh}: {refresh: any}) {
 	const [open, setOpen] = useState(false);
@@ -88,7 +89,7 @@ export default function UserAddDialog({refresh}: {refresh: any}) {
 						className="fixed bottom-4 right-4 rounded-full w-14 h-14 p-0 text-2xl shadow-lg"
 						onClick={() => setOpen(true)}
 					>
-						+
+						<UserRoundPlus />
 					</Button>
 				</DialogTrigger>
 				<DialogContent className="sm:max-w-[500px]">

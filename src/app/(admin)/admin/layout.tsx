@@ -9,6 +9,7 @@ import {
 	Stethoscope,
 	UserRound,
 } from "lucide-react";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} flex antialiased w-full h-full`}
 			>
+				<Toaster position="top-right" />
 				<div className="w-[300px] h-screen bg-[#D3D3D350] flex flex-col top-0 left-0 z-50 py-8">
 					<div className="relative w-[200px] h-[35px] cursor-pointer mx-auto mb-8">
 						<Image
