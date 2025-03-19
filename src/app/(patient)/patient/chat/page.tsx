@@ -3,41 +3,59 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
-import mediaUpload from "@/lib/mediaUploader"; // adjust import based on your project structure
+import mediaUpload from "@/lib/mediaUploader";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 export default function ChatPage() {
     const [status, setStatus] = useState("loading");
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState("");
     const videoRef = useRef<HTMLVideoElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null); // For capturing image from video
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
 
-    // Load Chat Messages
+    // Scroll to bottom on messages update
     useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    // Load Chat Messages on mount
+    useEffect(() => {
+        loadMessages();
+    }, []);
+
+    const scrollToBottom = () => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    };
+
+    const loadMessages = async () => {
         const token = localStorage.getItem("token");
-        axios
-            .get(process.env.NEXT_PUBLIC_BACKEND_URL + "/depression/chats", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((res) => {
-                setMessages(res.data);
-                setStatus("loaded");
-            })
-            .catch((err) => {
-                console.log(err);
-                setStatus("error");
-            });
-    }, [status]);
+        setStatus("loading");
+        try {
+            const res = await axios.get(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/depression/chats`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+            setMessages(res.data);
+            setStatus("loaded");
+        } catch (err) {
+            console.log(err);
+            setStatus("error");
+        }
+    };
 
     // Start Camera on Mount
     useEffect(() => {
         const startCamera = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
                 }
@@ -50,47 +68,34 @@ export default function ChatPage() {
         startCamera();
 
         return () => {
-            if (videoRef.current && videoRef.current.srcObject) {
+            if (videoRef.current?.srcObject) {
                 const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
                 tracks.forEach((track) => track.stop());
             }
         };
     }, []);
 
-    // Capture and Upload the Image
     const captureAndUploadImage = async () => {
-        if (!videoRef.current) {
-            throw new Error("Camera is not active");
-        }
+        if (!videoRef.current) throw new Error("Camera is not active");
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
+        if (!canvas) throw new Error("Canvas not found");
 
-        if (!canvas) {
-            throw new Error("Canvas not found");
-        }
-
-        // Set canvas size to video size
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
         const ctx = canvas.getContext("2d");
-        if (!ctx) {
-            throw new Error("Failed to get canvas context");
-        }
+        if (!ctx) throw new Error("Failed to get canvas context");
 
-        // Draw current frame from video to canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Convert canvas image to blob (PNG)
         return new Promise<File>((resolve, reject) => {
             canvas.toBlob((blob) => {
                 if (!blob) {
                     reject("Failed to capture image");
                     return;
                 }
-
-                // Convert blob to a File for upload
                 const file = new File([blob], "snapshot.png", { type: "image/png" });
                 resolve(file);
             }, "image/png");
@@ -98,105 +103,137 @@ export default function ChatPage() {
     };
 
     const sendMessage = async () => {
-        if (message === "") {
+        if (!message.trim()) {
             toast.error("Message cannot be empty");
             return;
         }
 
+        setStatus("loading");
+
         const token = localStorage.getItem("token");
 
         try {
-            // 1. Capture image from webcam
             const file = await captureAndUploadImage();
-
-            // 2. Upload image to Supabase Storage
             const imageUrl = await mediaUpload(file);
 
-            console.log("Image uploaded to:", imageUrl);
-
-            // 3. Send chat message + image URL
             const res = await axios.post(
-                process.env.NEXT_PUBLIC_BACKEND_URL + "/depression/chat",
-                {
-                    message: message,
-                    url: imageUrl, // Pass the image URL in the request body
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/depression/chat`,
+                { message, url: imageUrl },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log(res.data)
+
             setMessages(res.data);
             setMessage("");
             toast.success("Message sent successfully!");
+            setStatus("loaded");
 
-        } catch (err: any) {
+            // Scroll after sending message
+            scrollToBottom();
+        } catch (err) {
             console.error(err);
             toast.error("Failed to send message with image");
+            setStatus("error");
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
         }
     };
 
     return (
-        <div className="relative w-full h-full max-h-full overflow-y-scroll flex flex-col justify-center items-center pb-[100px]">
-            {/* Camera Preview in Top-Right */}
-            <div className="absolute top-4 right-4 w-[200px] h-[150px] rounded-lg overflow-hidden border-2 border-gray-400 shadow-md z-50 bg-black">
+        <div className="relative w-full h-screen bg-gradient-to-b from-indigo-50 via-white to-indigo-100 flex flex-col">
+            {/* Camera Preview */}
+            <div className="absolute top-6 right-6 w-[220px] h-[160px] backdrop-blur-md bg-white/10 border border-white/30 rounded-2xl shadow-lg overflow-hidden z-50">
                 <video
                     ref={videoRef}
                     autoPlay
                     muted
                     playsInline
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-2xl"
                 />
             </div>
 
-            {/* Hidden canvas for capturing snapshot */}
+            {/* Hidden canvas */}
             <canvas ref={canvasRef} style={{ display: "none" }} />
 
-            {/* Chat Messages */}
-            {messages.map((message: any, index) => (
-                <div
-                    key={index}
-                    className={`w-full flex ${
-                        message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                >
-                    <div
-                        className={`w-1/2 p-2 m-2 ${
-                            message.role === "user" ? "bg-blue-500" : "bg-gray-500"
-                        } rounded-lg text-white`}
-                    >
-                        {message.message}
-                        {message.url && (
-                            <div className="mt-2">
-                                <img
-                                    src={message.url}
-                                    alt="snapshot"
-                                    className="w-32 h-auto rounded"
-                                />
+            {/* Chat Box */}
+            <div
+                ref={chatContainerRef}
+                className="flex-grow p-4 overflow-y-auto"
+                style={{ scrollBehavior: "smooth" }}
+            >
+                <div className="flex flex-col gap-4 pb-28">
+                    {status === "loading" ? (
+                        <div className="flex justify-center mt-10">
+                            <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />
+                        </div>
+                    ) : messages.length === 0 ? (
+                        <p className="text-center text-gray-400">No messages yet.</p>
+                    ) : (
+                        messages.map((msg: any, index: number) => (
+                            <div
+                                key={index}
+                                className={`flex ${
+                                    msg.role === "user" ? "justify-end" : "justify-start"
+                                }`}
+                            >
+                                <Card
+                                    className={`max-w-[70%] px-4 py-3 rounded-2xl shadow-md ${
+                                        msg.role === "user"
+                                            ? "bg-indigo-500 text-white"
+                                            : "bg-white text-gray-800"
+                                    }`}
+                                >
+                                    <CardContent className="p-0">
+                                        <p className="text-sm">{msg.message}</p>
+                                        {msg.url && (
+                                            <img
+                                                src={msg.url}
+                                                alt="snapshot"
+                                                className="mt-2 rounded-lg w-32 h-auto"
+                                            />
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </div>
-                        )}
-                    </div>
+                        ))
+                    )}
                 </div>
-            ))}
-
-            {/* Message Input */}
-            <div className="w-full fixed bottom-0 flex justify-center items-center bg-white py-2">
-                <input
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    type="text"
-                    className="w-1/2 p-2 m-2 border-2 border-gray-500 rounded-lg"
-                    placeholder="Type a message"
-                />
-                <button
-                    onClick={sendMessage}
-                    className="p-2 m-2 bg-blue-500 text-white rounded-lg"
-                >
-                    Send
-                </button>
             </div>
+
+            {/* Input Box */}
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    sendMessage();
+                }}
+            >
+                <div className="fixed bottom-0 w-full border-t bg-white px-4 py-3 flex items-center gap-3">
+                    <Input
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        type="text"
+                        placeholder="Type a message and press Enter..."
+                        className="flex-grow"
+                        onKeyDown={handleKeyDown}
+                        disabled={status === "loading"}
+                    />
+                    <Button
+                        type="submit"
+                        className="bg-indigo-600 hover:bg-indigo-700"
+                        disabled={status === "loading"}
+                    >
+                        {status === "loading" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            "Send"
+                        )}
+                    </Button>
+                </div>
+            </form>
         </div>
     );
 }
