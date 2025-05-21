@@ -13,7 +13,6 @@ export async function middleware( req : NextRequest ) {
           
           if(user){
             req.headers.set("user",JSON.stringify(user.payload));
-            console.log(user.payload);
           }else{
             return NextResponse.json({message: "User not found",code : 2626 , description : "Your login session expired or you have been trying to use forged login token."}, {status: 404});
           }
