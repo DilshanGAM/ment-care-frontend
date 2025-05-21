@@ -53,8 +53,8 @@ export default function UserAddDialog({refresh}: {refresh: any}) {
 
 		const newUser = {
 			email: e.target.email.value,
-			first_name: e.target.first_name.value,
-			last_name: e.target.last_name.value,
+			firstName: e.target.first_name.value,
+			lastName: e.target.last_name.value,
 			phone: e.target.phone.value,
             password: e.target.password.value,
             image : "https://picsum.photos/id/173/200/200",
@@ -62,7 +62,7 @@ export default function UserAddDialog({refresh}: {refresh: any}) {
 			diseases: userType === "patient" ? selectedDiseases : [],
 		};
         const token = localStorage.getItem("token");
-        axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/register`, newUser, {
+        axios.post(`/api/users/register`, newUser, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

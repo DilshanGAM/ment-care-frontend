@@ -27,7 +27,7 @@ export default function UsersByDiseaseTable({disease}:{disease: string}) {
 		}
 		if (loading) {
 			axios
-				.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/patients/${disease}`, {
+				.get(`/api/users/patients?disease=${disease}`, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
@@ -76,13 +76,13 @@ export default function UsersByDiseaseTable({disease}:{disease: string}) {
 									<Avatar>
 										<AvatarImage src={user.image} alt="@shadcn" />
 										<AvatarFallback>
-											{user.first_name[0].toUpperCase() +
-												user.last_name[0].toUpperCase()}
+											{user.firstName[0].toUpperCase() +
+												user.lastName[0].toUpperCase()}
 										</AvatarFallback>
 									</Avatar>
 								</TableCell>
-								<TableCell>{user.first_name}</TableCell>
-								<TableCell>{user.last_name}</TableCell>
+								<TableCell>{user.firstName}</TableCell>
+								<TableCell>{user.lastName}</TableCell>
 								<TableCell>{user.email}</TableCell>
 								<TableCell>{
 									user.diseases.map((disease: any , index : Number) => (

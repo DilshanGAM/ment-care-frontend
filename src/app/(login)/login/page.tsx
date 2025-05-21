@@ -18,8 +18,7 @@ export default function Home() {
 	const router = useRouter()
 	function handleLogin(){
 		console.log(email , password)
-		console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
-		axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`,{
+		axios.post(`/api/users/login`,{
 			email,
 			password
 		}).then((res)=>{

@@ -38,7 +38,7 @@ export default function ChatPage() {
         setStatus("loading");
         try {
             const res = await axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/depression/chats`,
+                `/api/depression/chats`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -117,7 +117,7 @@ export default function ChatPage() {
             const imageUrl = await mediaUpload(file);
 
             const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/depression/chat`,
+                `/api/depression/chat`,
                 { message, url: imageUrl },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

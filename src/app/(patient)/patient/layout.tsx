@@ -18,14 +18,14 @@ export default function RootLayout({
 	useEffect(() => {
 		const token = localStorage.getItem("token");
 		if(userValidationStatus == "loading"){axios
-			.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/user`, {
+			.get(`/api/users/`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
 			})
 			.then((res) => {
-				setUser(res.data);
-        if(res.data.type != "patient"){
+				setUser(res.data.user);
+        if(res.data.user.type != "patient"){
           setUserValidationStatus("unauthorized");
           router.push("/login");
         }else
