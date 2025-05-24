@@ -69,7 +69,7 @@ export default function UsersByDiseaseTable({disease}:{disease: string}) {
 					</TableHeader>
 					<TableBody>
 						{users.map((user: any) => (
-							<TableRow key={user.email} className="cursor-pointer" onClick={()=>{
+							<TableRow  key={user.email} className="cursor-pointer" onDoubleClick={()=>{
                                 router.push(`/doctor/${disease}/summary?email=${user.email}`);
                             }}>
 								<TableCell>

@@ -14,13 +14,13 @@ export async function POST(request: NextRequest) {
 	}
 
 	const userObject = JSON.parse(user);
-	const { message } = await request.json();
+	const { message , url } = await request.json();
 
 	const chatMessage = {
 		email: userObject.email,
 		message: message,
 		role: "user",
-		img: userObject.img,
+		img: url,
 	};
 	try {
 		//save the chat message to the database

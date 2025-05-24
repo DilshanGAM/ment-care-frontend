@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import mediaUpload from "@/lib/mediaUploader"; // ✅ Adjust path to your actual media uploader
+import axios from "axios";
 
 export default function HandWrittingInput() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -129,9 +130,17 @@ export default function HandWrittingInput() {
             });
 
             try {
+                const token = localStorage.getItem("token");
                 const uploadedUrl = await mediaUpload(file);
+                const response = await axios.post("/api/parkinson/handwritting", {
+                    img : uploadedUrl,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });                    
                 console.log("Uploaded image URL:", uploadedUrl);
-                toast.success("Handwriting uploaded successfully!");
+                toast.success("Handwriting data uploaded successfully!");
             } catch (err) {
                 console.error(err);
                 toast.error("Failed to upload handwriting");

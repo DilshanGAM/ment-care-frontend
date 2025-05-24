@@ -4,9 +4,12 @@ import "../../globals.css";
 import Image from "next/image";
 import Link from "next/link";
 import {
+	Baby,
+	BrainCircuit,
 	BrainCog,
 	FileUser,
 	LayoutDashboard,
+	Lightbulb,
 	Stethoscope,
 	UserRound,
 } from "lucide-react";
@@ -56,13 +59,27 @@ export default function RootLayout({
 					</Link>
 					{/* doctors */}
 					<Link
-						href="/admin/doctors"
+						href="/doctor/Alzheimers"
 						className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"
 					>
-						<Stethoscope className="mr-2" />
-						Doctors
+						<Lightbulb className="mr-2" />
+						Alzheimers
 					</Link>
 					{/* patients */}
+					<Link
+						href="/doctor/Autism"
+						className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"
+					>
+						<Baby className="mr-2" />
+						Autism
+					</Link>
+					<Link
+						href="/doctor/Parkinson"
+						className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"
+					>
+						<BrainCircuit className="mr-2" />
+						Parkinsons
+					</Link>
 					<Link
 						href="/admin/patients"
 						className="text-left text-md text-bgGray w-full pl-12 mb-4 flex items-center hover:text-black"

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import mediaUpload from "@/lib/mediaUploader";
+import axios from "axios";
 
 export default function AudioTest() {
 	const [recording, setRecording] = useState(false);
@@ -81,6 +82,18 @@ export default function AudioTest() {
 		try {
 			setUploading(true);
 			const uploadedUrl = await mediaUpload(file);
+			const token = localStorage.getItem("token");
+			await axios.post(
+				"/api/parkinson/audio",
+				{
+					audio: uploadedUrl,
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 			console.log("Uploaded audio URL:", uploadedUrl);
 			toast.success("Audio uploaded successfully!");
 		} catch (error) {

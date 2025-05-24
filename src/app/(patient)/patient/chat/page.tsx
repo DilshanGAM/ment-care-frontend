@@ -38,7 +38,7 @@ export default function ChatPage() {
         setStatus("loading");
         try {
             const res = await axios.get(
-                `/api/depression/chats`,
+                `/api/depression/chat`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
